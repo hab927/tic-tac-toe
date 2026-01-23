@@ -49,6 +49,9 @@ namespace ClassGame {
                 }
 
                 ImGui::Separator();
+
+                // these two buttons I added, they basically just toggle AI on and off
+                // you can choose whether to play two-player (AI off), or against the AI (AI on).
                 if (ImGui::Button("Play Two-Player")) {
                     game->_gameOptions.AIPlaying = false;
                     game->stopGame();

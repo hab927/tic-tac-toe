@@ -93,6 +93,9 @@ void Game::endTurn()
 
 void Game::scanForMouse()
 {
+	// This needed to be uncommented and changed to use the game options rather than the function gameHasAI() since
+	// that was getting overriden by a true value
+
     if (_gameOptions.AIPlaying && getCurrentPlayer()->isAIPlayer()) 
     {
        updateAI();

@@ -198,6 +198,7 @@ Player* TicTacToe::checkForWinner()
         {2,4,6}
     };
 
+    // there is probably a more elegant way to do this but this works for now :)
     for (int triple = 0; triple < 8; triple++) {
         int y1 = winningTriples[triple][0] / 3;
         int x1 = winningTriples[triple][0] % 3;
@@ -338,7 +339,8 @@ void TicTacToe::updateAI()
 {
     // we will implement the AI in the next assignment!
 
-    // simple random AI
+
+    // simple random AI!
     if (checkForDraw() || checkForWinner()) {
         return;
     }
