@@ -47,6 +47,23 @@ namespace ClassGame {
                         gameWinner = -1;
                     }
                 }
+
+                ImGui::Separator();
+                if (ImGui::Button("Play Two-Player")) {
+                    game->_gameOptions.AIPlaying = false;
+                    game->stopGame();
+                    game->setUpBoard();
+                    gameOver = false;
+                    gameWinner = -1;
+                }
+                if (ImGui::Button("Play Against AI")) {
+                    game->_gameOptions.AIPlaying = true;
+                    game->stopGame();
+                    game->setUpBoard();
+                    gameOver = false;
+                    gameWinner = -1;
+                }
+
                 ImGui::End();
 
                 ImGui::Begin("GameWindow");

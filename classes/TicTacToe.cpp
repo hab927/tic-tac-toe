@@ -1,5 +1,7 @@
 #include "TicTacToe.h"
 
+#include <random> // adding this for the simple AI player at the bottom
+
 // -----------------------------------------------------------------------------
 // TicTacToe.cpp
 // -----------------------------------------------------------------------------
@@ -335,5 +337,36 @@ void TicTacToe::setStateString(const std::string &s)
 void TicTacToe::updateAI() 
 {
     // we will implement the AI in the next assignment!
+
+    // simple random AI
+    if (checkForDraw() || checkForWinner()) {
+        return;
+    }
+
+    std::vector<int> choices = {};
+
+    for (int y = 0; y < 3; y++) {
+        for (int x = 0; x < 3; x++) {
+            Bit* bit = _grid[y][x].bit();
+            if (!bit) {
+                choices.push_back(y*3 + x);
+            }
+        }
+    }
+
+    // this is incredibly complicated for getting a random number but thank you to https://cpppatterns.com/patterns/choose-random-element.html#:~:text=Description,integers%20from%200%20to%20v.
+    std::random_device rd;
+    std::mt19937 engine{rd()};
+    std::uniform_int_distribution<int> dist(0, (int)choices.size() - 1);
+
+    int index = choices[dist(engine)];
+    int y = index / 3;
+    int x = index % 3;
+
+    Bit* newBit = PieceForPlayer(AI_PLAYER);
+    newBit->setPosition((float)100*x, (float)100*y);
+    _grid[y][x].setBit(newBit);
+
+    endTurn();
 }
 
