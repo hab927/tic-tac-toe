@@ -395,17 +395,13 @@ int aiBoardEval(std::string& state) {                   // helper for the AI to 
 }
 
 int TicTacToe::negamax(std::string& state, int depth, int alpha, int beta, int playerColor) {
-    
     if (aiBoardEval(state) != 0) {
         return -aiBoardEval(state);     // there's a winner
     }
-
     if (aiTestForTerminal(state)) {
         return 0;                       // there is a draw
     }
-
     int bestVal = -10000;
-
     for (int i = 0; i < 9; i++) {
         if (state[i] == '0') {
             state[i] = playerColor == HUMAN_PLAYER ? '1' : '2';     // push move
