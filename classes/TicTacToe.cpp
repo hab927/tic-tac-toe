@@ -347,7 +347,7 @@ void TicTacToe::updateAI()
     for (int i = 0; i < 9; i++) {
         if (currentState[i] == '0') {
             currentState[i] = '2';
-            int newValue = -negamax(currentState, 0, 0, 0, HUMAN_PLAYER);
+            int newValue = -negamax(currentState, 0, -100000, 100000, HUMAN_PLAYER);
             currentState[i] = '0';
             if (newValue > bestMove) {
                 bestSquare = i;
@@ -410,10 +410,15 @@ int TicTacToe::negamax(std::string& state, int depth, int alpha, int beta, int p
         if (state[i] == '0') {
             state[i] = playerColor == HUMAN_PLAYER ? '1' : '2';     // push move
             int newVal = -negamax(state, depth + 1, -beta, -alpha, (playerColor+1)%2);
+            state[i] = '0';         // pop move
             if (newVal > bestVal) {
                 bestVal = newVal;
             }
-            state[i] = '0';         // pop move
+            // alpha beta pruning
+            if (newVal > alpha) {
+                alpha = newVal;
+            }
+            if (alpha > beta) break;
         }
     }
     return bestVal;
