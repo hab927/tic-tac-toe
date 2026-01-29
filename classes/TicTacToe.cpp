@@ -66,7 +66,7 @@ void TicTacToe::setUpBoard()
     _gameOptions.rowY = 3;
     for (int y = 0; y < _gameOptions.rowY; y++) {
         for (int x = 0; x < _gameOptions.rowX; x++) {
-            _grid[y][x].initHolder(ImVec2((float)100*x, (float)100*y), "square.png", x, y);
+            _grid[y][x].initHolder(ImVec2((float)100*x + 40.0f, (float)100*y + 40.0f), "square.png", x, y);
         }
     }
 
@@ -337,38 +337,85 @@ void TicTacToe::setStateString(const std::string &s)
 //
 void TicTacToe::updateAI() 
 {
-    // we will implement the AI in the next assignment!
+    // negamax AI
 
+    std::string currentState = stateString();
 
-    // simple random AI!
-    if (checkForDraw() || checkForWinner()) {
-        return;
-    }
+    int bestMove = -10000;
+    int bestSquare = -1;
 
-    std::vector<int> choices = {};
-
-    for (int y = 0; y < 3; y++) {
-        for (int x = 0; x < 3; x++) {
-            Bit* bit = _grid[y][x].bit();
-            if (!bit) {
-                choices.push_back(y*3 + x);
+    for (int i = 0; i < 9; i++) {
+        if (currentState[i] == '0') {
+            currentState[i] = '2';
+            int newValue = -negamax(currentState, 0, 0, 0, HUMAN_PLAYER);
+            currentState[i] = '0';
+            if (newValue > bestMove) {
+                bestSquare = i;
+                bestMove = newValue;
             }
         }
     }
 
-    // this is incredibly complicated for getting a random number but thank you to https://cpppatterns.com/patterns/choose-random-element.html#:~:text=Description,integers%20from%200%20to%20v.
-    std::random_device rd;
-    std::mt19937 engine{rd()};
-    std::uniform_int_distribution<int> dist(0, (int)choices.size() - 1);
+    if (bestSquare != -1) {
+        // make a move based on our best square
+        actionForEmptyHolder(&_grid[bestSquare/3][bestSquare%3]);
+        // let the human go again
+        endTurn();
+    }
+}
 
-    int index = choices[dist(engine)];
-    int y = index / 3;
-    int x = index % 3;
+bool aiTestForTerminal(std::string& state) {            // helper for the AI to find if the board is terminal using a state string
+    if (state.find('0') == std::string::npos) {         // string's find function will either return the position or return npos for no existence.
+        return true;        // terminal state reached
+    }
+    return false;           // terminal state reached
+}
 
-    Bit* newBit = PieceForPlayer(AI_PLAYER);
-    newBit->setPosition((float)100*x, (float)100*y);
-    _grid[y][x].setBit(newBit);
+int aiBoardEval(std::string& state) {                   // helper for the AI to find if the board is 
+    static const int winningTriples[8][3] = {
+        {0,1,2},
+        {3,4,5},
+        {6,7,8},
+        {0,3,6},
+        {1,4,7},
+        {2,5,8},
+        {0,4,8},
+        {2,4,6}
+    };
 
-    endTurn();
+    for (int i = 0; i < 8; i++) {
+        char player = state[winningTriples[i][0]];
+        if (player != '0') {
+            if (player == state[winningTriples[i][1]] && player == state[winningTriples[i][2]]) {
+                return 10;           // we have a winner
+            }
+        }
+    }
+    return 0;                       // there is no winner right now
+}
+
+int TicTacToe::negamax(std::string& state, int depth, int alpha, int beta, int playerColor) {
+    
+    if (aiBoardEval(state) != 0) {
+        return -aiBoardEval(state);     // there's a winner
+    }
+
+    if (aiTestForTerminal(state)) {
+        return 0;                       // there is a draw
+    }
+
+    int bestVal = -10000;
+
+    for (int i = 0; i < 9; i++) {
+        if (state[i] == '0') {
+            state[i] = playerColor == HUMAN_PLAYER ? '1' : '2';     // push move
+            int newVal = -negamax(state, depth + 1, -beta, -alpha, (playerColor+1)%2);
+            if (newVal > bestVal) {
+                bestVal = newVal;
+            }
+            state[i] = '0';         // pop move
+        }
+    }
+    return bestVal;
 }
 
